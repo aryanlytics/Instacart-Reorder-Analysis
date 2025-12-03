@@ -1,3 +1,7 @@
+<p align="center">
+<img width="300" height="435" alt="03-Instacart-Logo-Kale-1 (1)" src="https://github.com/user-attachments/assets/c81e0ac6-0b22-489c-8dbb-e681c3bd7343" />
+</p>
+
 # Instacart Reorder Behavior Analysis
 
 ## Project Overview
