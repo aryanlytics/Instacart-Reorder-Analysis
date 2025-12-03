@@ -4,15 +4,33 @@
 
 # Instacart Reorder Behavior Analysis
 
-## Project Overview
+## **Instacart**
 
-This analysis diagnoses **why some products get reordered while others don't** using 32.4 million order records from Instacart's online grocery platform. Rather than describing what customers do, this project identifies the behavioral and operational drivers behind reorder decisions—validated through statistical testing and predictive modeling.
+Instacart is a leading North American grocery delivery platform that partners with supermarkets and retail chains to offer same-day delivery. Customers shop online, Instacart sends personal shoppers to pick and deliver the orders, and retailers gain an extended digital channel without building their own fulfillment network.
 
-**Business Impact:** Findings enable Instacart to optimize promotional spend, product placement, and customer retention strategies by targeting the right categories to the right customers at the right time.
+The platform captures detailed behavioral data: product choices, order timing, repeat purchases, and cart composition across millions of transactions. This makes Instacart a rich environment for understanding how customers form grocery habits.
 
 ---
 
-## Business Question
+## The Business Problem
+
+Instacart operates in a category where repeat purchasing is the core of the business model. If a product keeps getting reordered, Instacart earns predictable margin and retention improves. If not, Instacart must keep spending to reacquire demand.
+
+Across 32.4 million orders, the company noticed a strong imbalance:
+
+- Some items (milk, bananas, eggs) are reordered at extremely high rates.
+
+- Others (new snacks, beverages, or niche items) are purchased once and never show up again.
+
+This raises a fundamental performance question for both Instacart and retailer partners:
+Is low reorder behavior caused by customer preferences, product issues, or operational factors?
+
+
+
+
+
+
+## Core Question
 
 **Why do some products consistently get reordered while others are purchased only once?**
 
