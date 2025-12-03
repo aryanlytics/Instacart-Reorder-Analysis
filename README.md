@@ -26,7 +26,7 @@ This raises a fundamental performance question for both Instacart and retailer p
 Is low reorder behavior caused by customer preferences, product issues, or operational factors?
 
 
-
+-----
 
 
 
@@ -53,53 +53,43 @@ Reorder likelihood is driven by:
 ---
 
 ## Dataset
+**Source:** InstaCart Online Grocery Basket Analysis Dataset (**Kaggle**)      
+[View Dataset](https://www.kaggle.com/datasets/yasserh/instacart-online-grocery-basket-analysis-dataset)
 
-**Source:** [Instacart Market Basket Analysis (Kaggle)](https://www.kaggle.com/c/instacart-market-basket-analysis)
-
-**Size:**
-- 32.4 million order items (prior orders dataset)
-- 3.3 million orders
-- 206,000 users
-- 49,685 unique products across 21 departments
-
-**Key Variables:**
-- `reordered`: Binary indicator (1 = reordered, 0 = first purchase)
-- `department`: Product category (Produce, Dairy Eggs, Snacks, etc.)
-- `days_since_prior_order`: Recency of customer activity
-- `user_id`: Customer identifier for frequency calculations
-- `product_id`: Product identifier for popularity metrics
-- `order_hour_of_day`, `order_dow`: Temporal features
 
 ---
+# **Executive Summary**
 
-## Methodology
+## **The Findings**
 
-### 1. Data Preparation (SQL/PostgreSQL)
-- Consolidated 6 source tables into unified `summary` table
-- Engineered features:
-  - User frequency (total orders per customer)
-  - Product popularity (total appearances across all orders)
-  - Recency buckets (0-7 days, 8-14 days, etc.)
-  - Time-of-day categories (Morning, Afternoon, Evening, Night)
-- Created `reorder_analysis` table with 32.4M rows for modeling
 
-### 2. Statistical Validation (Python/scipy)
-- **Chi-square tests** to validate categorical relationships (department vs. reorder status)
-- **Logistic regression** to quantify predictive strength of each driver
-- **Odds ratios** to translate coefficients into business-friendly metrics
 
-### 3. Model Specifications
-- **Algorithm:** Logistic Regression (sklearn)
-- **Features:** 10 predictors (3 continuous, 7 categorical)
-- **Sample size:** 500,000 records (statistically powered)
-- **Split:** 70% training, 30% validation
-- **Performance:** 67% accuracy, ROC-AUC 0.688
 
----
 
-## Key Findings
 
-### Finding 1: Department Type Drives Reorder Behavior (STRONGEST PREDICTOR)
+### **Evidence**
+
+
+
+
+### **The Root Cause** 
+
+
+
+
+
+
+### **Business Impact**
+
+
+
+
+
+
+
+# **Analysis & Diagnosis**
+
+### 1: Department Type Drives Reorder Behavior (STRONGEST PREDICTOR)
 
 **Statistical Evidence:**
 - All departments showed statistically significant effects (chi-square p < 0.001)
@@ -123,7 +113,7 @@ Reorder likelihood is driven by:
 
 ---
 
-### Finding 2: User Frequency Predicts Reorder Habits (45-POINT SPREAD)
+### 2: User Frequency Predicts Reorder Habits (45-POINT SPREAD)
 
 **Evidence from Univariate Analysis:**
 | User Frequency | Reorder Rate | Sample Size |
@@ -142,7 +132,7 @@ Frequent shoppers are creatures of habit. They've identified their preferred pro
 
 ---
 
-### Finding 3: Recency Matters, But Less Than Expected (18-POINT DROP)
+### 3: Recency Matters, But Less Than Expected (18-POINT DROP)
 
 **Evidence from Univariate Analysis:**
 | Days Since Prior Order | Reorder Rate |
@@ -161,7 +151,7 @@ The longer customers wait between orders, the more unpredictable their behavior 
 
 ---
 
-### Finding 4: Time of Day Is Irrelevant (HYPOTHESIS REJECTED)
+### 4: Time of Day Is Irrelevant (HYPOTHESIS REJECTED)
 
 **Evidence:**
 | Time of Day | Reorder Rate | Difference |
@@ -178,7 +168,7 @@ Reorder behavior is driven by **what** customers buy (category) and **how often*
 
 ---
 
-### Finding 5: Product Popularity Is Correlation, Not Causation
+### 5: Product Popularity Is Correlation, Not Causation
 
 **Univariate Analysis Showed:**
 - Rare products (< 100 orders): 36% reorder rate
@@ -193,29 +183,26 @@ Popular products are popular *because* they're reordered frequently, not the oth
 Don't prioritize products just because they're popular overall. Focus on what *this specific customer* reorders based on their department preferences and shopping frequency.
 
 ---
+## **Key Insight:
 
-## Model Performance
-
-**Logistic Regression Results:**
-- **Accuracy:** 67%
-- **ROC-AUC Score:** 0.688
-- **Interpretation:** Model distinguishes reordered vs. non-reordered items reasonably well
-
-This is typical for behavioral prediction models. Customer habits aren't deterministic—there's inherent randomness in human behavior. A 67% accuracy rate means the model correctly predicts reorder decisions two-thirds of the time, which is actionable for business strategy.
 
 ---
 
 ## Visualizations
 
 ### Feature Importance
-![Feature Importance](feature_importance.png)
+
+<img width="1000" height="700" alt="feature_importance" src="https://github.com/user-attachments/assets/bea37a78-b132-4188-b0b7-8ab1d1651060" />
+
 
 **Key Takeaway:** Department dummies dominate the model. Dairy, beverages, and bakery strongly increase reorder odds, while pantry dramatically decreases them.
 
 ---
 
 ### Model Prediction Distribution
-![Prediction Distribution](prediction_distribution.png)
+
+<img width="1000" height="700" alt="prediction_distribution" src="https://github.com/user-attachments/assets/619ef999-3e5b-4294-99af-900a3f0f58d3" />
+
 
 **Key Takeaway:** The model successfully separates reordered items (green, right-skewed) from non-reordered items (red, left-skewed). Good separation indicates the model has learned meaningful patterns.
 
@@ -292,112 +279,7 @@ This is typical for behavioral prediction models. Customer habits aren't determi
 
 ---
 
-## Technical Implementation
 
-### SQL Feature Engineering
-```sql
-CREATE TABLE reorder_analysis AS
-SELECT 
-    s.order_id,
-    s.user_id,
-    s.product_id,
-    s.department,
-    s.reordered,
-    s.days_since_prior_order,
-    
-    -- User frequency
-    user_stats.total_orders as user_total_orders,
-    
-    -- Product popularity
-    prod_stats.product_order_count as product_popularity,
-    
-    -- Time features
-    CASE 
-        WHEN s.order_hour_of_day BETWEEN 6 AND 11 THEN 'Morning'
-        WHEN s.order_hour_of_day BETWEEN 12 AND 17 THEN 'Afternoon'
-        ELSE 'Other'
-    END as time_of_day
-    
-FROM summary s
-INNER JOIN (
-    SELECT user_id, COUNT(DISTINCT order_id) as total_orders
-    FROM summary WHERE eval_set = 'prior'
-    GROUP BY user_id
-) user_stats ON s.user_id = user_stats.user_id
-INNER JOIN (
-    SELECT product_id, COUNT(*) as product_order_count
-    FROM summary WHERE eval_set = 'prior'
-    GROUP BY product_id
-) prod_stats ON s.product_id = prod_stats.product_id
-WHERE s.eval_set = 'prior';
-```
-
-### Python Statistical Testing
-```python
-from scipy.stats import chi2_contingency
-from sklearn.linear_model import LogisticRegression
-
-# Chi-square test for department effect
-contingency = pd.crosstab(df['department'], df['reordered'])
-chi2, p_value, dof, expected = chi2_contingency(contingency)
-
-# Logistic regression
-X = df[['days_since_prior', 'user_total_orders', 'product_popularity', 
-        'is_dairy', 'is_produce', 'is_pantry', ...]]
-y = df['reordered']
-
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
-
-# Odds ratios
-odds_ratios = np.exp(model.coef_[0])
-```
-
----
-
-## Limitations & Future Work
-
-**Limitations:**
-1. **No competitive data:** Can't distinguish between switching to competitors vs. natural variety-seeking
-2. **No price sensitivity:** Dataset lacks pricing information
-3. **First orders excluded:** 6% of data (first-time purchases) removed from modeling to handle NULLs in recency
-4. **Seasonality not tested:** Time-of-year effects not analyzed (would require multi-year data)
-
-**Future Extensions:**
-1. **Predict *which specific products* a customer will reorder** (item-level recommendations)
-2. **Survival analysis** to predict time-until-next-order
-3. **A/B test recommendations** in production to validate business impact
-4. **Incorporate pricing elasticity** if pricing data becomes available
-
----
-
-## Repository Structure
-
-```
-instacart-reorder-analysis/
-├── README.md                      # This file
-├── reorder_analysis.py            # Python analysis script
-├── feature_importance.png         # Model visualization
-├── prediction_distribution.png    # Model performance chart
-├── data/
-│   └── reorder_data.csv          # Sample export (500K rows)
-└── sql/
-    └── feature_engineering.sql    # PostgreSQL queries
-```
-
----
-
-## Tools & Technologies
-
-- **Database:** PostgreSQL (data consolidation, feature engineering)
-- **Analysis:** Python 3.12
-  - pandas (data manipulation)
-  - scikit-learn (logistic regression)
-  - scipy (chi-square tests)
-  - matplotlib/seaborn (visualization)
-- **Sample Size:** 500,000 records (statistically powered for all tests)
-
----
 
 ## Key Takeaway
 
