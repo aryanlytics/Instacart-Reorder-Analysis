@@ -14,15 +14,24 @@ The platform captures detailed behavioral data: product choices, order timing, r
 
 ## **The Business Problem**
 
-Instacart operates in a category where repeat purchasing is the core of the business model. If a product keeps getting reordered, Instacart earns predictable margin and retention improves. If not, Instacart must keep spending to reacquire demand.
+Instacart operates in a low-margin, high-volume business where two metrics determine profitability:
+
+**1. Reorder Rate (Customer Retention)**
+If a product keeps getting reordered, Instacart earns predictable margin and retention improves. If not, Instacart must keep spending to reacquire demand.
 
 Across 32.4 million orders, the company noticed a strong imbalance:
-
 - Some items (milk, bananas, eggs) are reordered at extremely high rates
 - Others (new snacks, beverages, or niche items) are purchased once and never show up again
 
-This raises a fundamental performance question for both Instacart and retailer partners:
-**Is low reorder behavior caused by customer preferences, product issues, or operational factors?**
+**2. Basket Size (Revenue per Transaction)**
+Some customers consistently place large orders (20-30+ items), while others place small orders (2-5 items). In a delivery business with fixed picking and delivery costs, larger baskets drive profitability.
+
+**These patterns raise two fundamental questions:**
+
+1. **Is low reorder behavior caused by customer preferences, product issues, or operational factors?**
+2. **Why do some customers build large baskets while others don't—and can this be influenced?**
+
+Understanding the drivers behind both metrics enables Instacart to optimize retention strategies and revenue per transaction.
 
 ---
 
